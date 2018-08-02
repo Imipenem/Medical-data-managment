@@ -1,5 +1,3 @@
-
-
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Application;
@@ -14,7 +12,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -35,30 +32,42 @@ public class Main extends Application{
         grid.setVgap(8);
         grid.setHgap(10);
 
-        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:LoginScreenBackground.png", 300, 300, false, true),
+        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:LoginScreenBackground.png", 450, 350, false, true),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 BackgroundSize.DEFAULT);
 
         Label UserName = new Label("Username:");
         UserName.setTextFill(Paint.valueOf("red"));
         GridPane.setConstraints(UserName, 0, 0);
+        UserName.prefHeight(40);
 
         TextField nameInput = new TextField();
         GridPane.setConstraints(nameInput, 1, 0);
         nameInput.setPromptText("Username");
+        nameInput.setPrefHeight(40);
 
         Label password = new Label("Password:");
         password.setTextFill(Paint.valueOf("red"));
         GridPane.setConstraints(password, 0, 1);
+        password.prefHeight(40);
 
         TextField passwordInput = new TextField();
         GridPane.setConstraints(passwordInput, 1, 1);
+        passwordInput.setPrefHeight(40);
+
 
         Button createNewPassword = new Button("Register");
         GridPane.setConstraints(createNewPassword, 1, 2);
+        createNewPassword.prefWidthProperty().bind(grid.widthProperty());
+        createNewPassword.prefHeightProperty().bind(grid.heightProperty());
+        createNewPassword.setMaxHeight(40);
+
 
         Button logInButton = new Button("Log in");
         GridPane.setConstraints(logInButton, 0, 2);
+        logInButton.prefWidthProperty().bind(grid.widthProperty());
+        logInButton.prefHeightProperty().bind(grid.heightProperty());
+        logInButton.setMaxHeight(40);
 
 
         if (new File("UserData.json").exists()) {
@@ -119,9 +128,10 @@ public class Main extends Application{
              */
 
             okButton.setOnAction(e -> {
+                nameInput2.setText(nameInput2.getText().replaceAll(" ",""));
+                passwordInput1.setText(passwordInput1.getText().replaceAll(" ",""));
                 User currentUser = new User(nameInput2.getText(), passwordInput1.getText());
                 UserSample.add(currentUser);
-
                 newWindow.close();
             });
 
@@ -138,7 +148,9 @@ public class Main extends Application{
             User localDummyUser = new User(nameInput.getText(), passwordInput.getText());
             if (UserSample.contains(localDummyUser)) {
                 System.out.println("Login successfull");
+                startDefaultScreen();
                 primaryStage.close();
+
             } else {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Your password or Username were incorrect! Please reenter", ButtonType.OK, ButtonType.CANCEL);
                 alert.showAndWait();
@@ -154,10 +166,10 @@ public class Main extends Application{
         grid.getChildren().addAll(UserName, nameInput, password, passwordInput, createNewPassword, logInButton);
         grid.setBackground(new Background(backgroundLoginScreen));
 
-        Scene scene = new Scene(grid, 300, 300);
+        Scene scene = new Scene(grid, 450, 300);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Welcome to Medical_Data Plot");
         primaryStage.show();
-
     }
 
     /**
@@ -176,5 +188,16 @@ public class Main extends Application{
     }
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void startDefaultScreen() {
+        final OverviewScreen defaultScreen = new OverviewScreen();
+        Stage default_primaryStage = new Stage();
+        try {
+            defaultScreen.start(default_primaryStage);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
