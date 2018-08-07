@@ -190,7 +190,7 @@ public class Main extends Application{
         launch(args);
     }
 
-    public void startDefaultScreen() {
+    private void startDefaultScreen() {
         final OverviewScreen defaultScreen = new OverviewScreen();
         Stage default_primaryStage = new Stage();
         try {
