@@ -3,6 +3,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -10,6 +11,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.util.Calendar;
 
 
 public class OverviewScreen extends Application {
@@ -120,45 +125,39 @@ public class OverviewScreen extends Application {
         Button enterRRData = new Button("Confirm");
         GridPane.setConstraints(enterRRData, 0, 2);
         enterRRData.setDisable(true);
+
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Number of Month");
+        //creating the chart
+        final LineChart<String,Number> lineChart =
+                new LineChart<String, Number>(xAxis,yAxis);
+
+        lineChart.setTitle("Blood Pressure trend");
+        //defining the systolic series
+        XYChart.Series SysSeries = new XYChart.Series();
+        SysSeries.setName("Systolic RR-value");
+
+        XYChart.Series DiaSeries = new XYChart.Series();
+        DiaSeries.setName("Diastolic RR-value");
+
+        Scene rrPlotScene = new Scene(lineChart, 400, 300);
+        lineChart.getData().addAll(SysSeries,DiaSeries);
+        Stage rrPlotWindow = new Stage();
+        rrPlotWindow.setTitle("Your RR Plot");
+        rrPlotWindow.initModality(Modality.WINDOW_MODAL);
+        rrPlotWindow.initOwner(newWindow);
+        rrPlotWindow.setX(newWindow.getX() + 200);
+        rrPlotWindow.setY(newWindow.getY() + 100);
+        rrPlotWindow.setScene(rrPlotScene);
+
+
         enterRRData.setOnAction(event -> {
+            String measureTime = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
 
-            Stage rrPlotWindow = new Stage();
-            rrPlotWindow.setTitle("Your RR Plot");
-
-
-            rrPlotWindow.initModality(Modality.WINDOW_MODAL);
-            rrPlotWindow.initOwner(newWindow);
-            rrPlotWindow.setX(newWindow.getX() + 200);
-            rrPlotWindow.setY(newWindow.getY() + 100);
-
-            final NumberAxis xAxis = new NumberAxis();
-            final NumberAxis yAxis = new NumberAxis();
-            xAxis.setLabel("Number of Month");
-            //creating the chart
-            final LineChart<Number,Number> lineChart =
-                    new LineChart<>(xAxis,yAxis);
-
-            lineChart.setTitle("Stock Monitoring, 2010");
-            //defining a series
-            XYChart.Series series = new XYChart.Series();
-            series.setName("My portfolio");
             //populating the series with data
-            series.getData().add(new XYChart.Data(1, 23));
-            series.getData().add(new XYChart.Data(2, 14));
-            series.getData().add(new XYChart.Data(3, 15));
-            series.getData().add(new XYChart.Data(4, 24));
-            series.getData().add(new XYChart.Data(5, 34));
-            series.getData().add(new XYChart.Data(6, 36));
-            series.getData().add(new XYChart.Data(7, 22));
-            series.getData().add(new XYChart.Data(8, 45));
-            series.getData().add(new XYChart.Data(9, 43));
-            series.getData().add(new XYChart.Data(10, 17));
-            series.getData().add(new XYChart.Data(11, 29));
-            series.getData().add(new XYChart.Data(12, 25));
-
-            Scene rrPlotScene = new Scene(lineChart, 400, 300);
-            lineChart.getData().add(series);
-            rrPlotWindow.setScene(rrPlotScene);
+            SysSeries.getData().add(new XYChart.Data<String,Number>(measureTime, Integer.parseInt(bloodPressureSystolic.getText())));
+            DiaSeries.getData().add(new XYChart.Data<String,Number>(measureTime, Integer.parseInt(bloodPressureDiastolic.getText())));
 
             rrPlotWindow.show();
         });
@@ -182,7 +181,6 @@ public class OverviewScreen extends Application {
                         && bloodPressureSystolic.getText().matches("[0-9]{2,3}"));
             }
         };
-
         enterRRData.disableProperty().bind(bb);
 
         createRRScreen.getChildren().addAll(enterRRData, bloodPressureSystolic, bloodPressureDiastolic, backFromRRScreen);
