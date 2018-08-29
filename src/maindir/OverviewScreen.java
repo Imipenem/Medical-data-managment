@@ -1,3 +1,4 @@
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
@@ -8,17 +9,22 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import com.google.gson.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.util.Calendar;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 public class OverviewScreen extends Application {
 
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Map<String, int[]> mappedRRValues;
 
     @Override
     public void start(Stage starterStage) throws Exception {
@@ -90,7 +96,7 @@ public class OverviewScreen extends Application {
      * This method starts the screen, whrere the user could enter his RR-Data.
      * The Button is only enabled, if the User gives the input in a correct format e.g both values (the systolic and
      * the diastolic RR-value have to be a 2-3 digit (0-9) number.
-     *
+     * <p>
      * TODO: This method contains just a placeholder line chart for general testing, will be replaced soon
      *
      * @param owner the "owner" stage of the new Window
@@ -112,6 +118,23 @@ public class OverviewScreen extends Application {
         newWindow.setX(owner.getX() + 200);
         newWindow.setY(owner.getY() + 100);
 
+        newWindow.setOnShowing(event -> {
+
+            if (new File("Mapped_RR_Value_Sample.json").exists()) {
+                Type type = new TypeToken<TreeMap<String, int[]>>() {
+                }.getType();
+                try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample.json"))) {
+                    mappedRRValues = gson.fromJson(br, type);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                mappedRRValues = new TreeMap<>();
+            }
+        });
+
 
         TextField bloodPressureSystolic = new TextField();
         bloodPressureSystolic.setPromptText("Your systolic value");
@@ -128,10 +151,10 @@ public class OverviewScreen extends Application {
 
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Number of Month");
+        xAxis.setLabel("Date");
         //creating the chart
-        final LineChart<String,Number> lineChart =
-                new LineChart<String, Number>(xAxis,yAxis);
+        final LineChart<String, Number> lineChart =
+                new LineChart<String, Number>(xAxis, yAxis);
 
         lineChart.setTitle("Blood Pressure trend");
         //defining the systolic series
@@ -142,7 +165,7 @@ public class OverviewScreen extends Application {
         DiaSeries.setName("Diastolic RR-value");
 
         Scene rrPlotScene = new Scene(lineChart, 400, 300);
-        lineChart.getData().addAll(SysSeries,DiaSeries);
+        lineChart.getData().addAll(SysSeries, DiaSeries);
         Stage rrPlotWindow = new Stage();
         rrPlotWindow.setTitle("Your RR Plot");
         rrPlotWindow.initModality(Modality.WINDOW_MODAL);
@@ -153,12 +176,19 @@ public class OverviewScreen extends Application {
 
 
         enterRRData.setOnAction(event -> {
-            String measureTime = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+            int[] mapRRData = new int[2];
+            LocalDateTime measuredDateTime = LocalDateTime.now();
+            mapRRData[0] = Integer.parseInt(bloodPressureSystolic.getText());
+            mapRRData[1] = Integer.parseInt(bloodPressureDiastolic.getText());
+            String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
+            mappedRRValues.put(formattedDateTime, mapRRData);
 
+            // map.forEach((k, v) -> i[0] += k + v);
             //populating the series with data
-            SysSeries.getData().add(new XYChart.Data<String,Number>(measureTime, Integer.parseInt(bloodPressureSystolic.getText())));
-            DiaSeries.getData().add(new XYChart.Data<String,Number>(measureTime, Integer.parseInt(bloodPressureDiastolic.getText())));
-
+            for (Map.Entry<String, int[]> entry : mappedRRValues.entrySet()) {
+                SysSeries.getData().add(new XYChart.Data<String, Number>(entry.getKey(), entry.getValue()[0]));
+                DiaSeries.getData().add(new XYChart.Data<String, Number>(entry.getKey(), entry.getValue()[1]));
+            }
             rrPlotWindow.show();
         });
 
@@ -186,6 +216,16 @@ public class OverviewScreen extends Application {
         createRRScreen.getChildren().addAll(enterRRData, bloodPressureSystolic, bloodPressureDiastolic, backFromRRScreen);
 
         newWindow.show();
+
+        newWindow.setOnCloseRequest(event -> {
+            System.out.println("RRScreen is closing");
+            try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample.json")) {
+                gson.toJson(mappedRRValues, writer);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**

@@ -12,16 +12,17 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Main extends Application{
+public class Main extends Application {
 
     private List<User> UserSample = new ArrayList<>();
-    private  Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 
     @Override
@@ -68,7 +69,7 @@ public class Main extends Application{
         logInButton.prefWidthProperty().bind(grid.widthProperty());
         logInButton.prefHeightProperty().bind(grid.heightProperty());
         logInButton.setMaxHeight(40);
-
+        logInButton.setDefaultButton(true);
 
         if (new File("UserData.json").exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader("UserData.json"))) {
@@ -128,8 +129,8 @@ public class Main extends Application{
              */
 
             okButton.setOnAction(e -> {
-                nameInput2.setText(nameInput2.getText().replaceAll(" ",""));
-                passwordInput1.setText(passwordInput1.getText().replaceAll(" ",""));
+                nameInput2.setText(nameInput2.getText().replaceAll(" ", ""));
+                passwordInput1.setText(passwordInput1.getText().replaceAll(" ", ""));
                 User currentUser = new User(nameInput2.getText(), passwordInput1.getText());
                 UserSample.add(currentUser);
                 newWindow.close();
@@ -156,6 +157,9 @@ public class Main extends Application{
                 alert.showAndWait();
 
                 if (alert.getResult().equals(ButtonType.OK)) {
+                    nameInput.setText("");
+                    nameInput.requestFocus();
+                    passwordInput.setText("");
                     alert.close();
                 } else if (alert.getResult().equals(ButtonType.CANCEL)) {
                     alert.close();
@@ -176,7 +180,7 @@ public class Main extends Application{
      * The User Data is written to the JSON-File only when the stage is closing and re-written for every further cycle!
      */
     @Override
-    public void stop(){
+    public void stop() {
         System.out.println("Stage is closing");
         try (FileWriter writer = new FileWriter("UserData.json")) {
 
@@ -186,6 +190,7 @@ public class Main extends Application{
             e.printStackTrace();
         }
     }
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -195,8 +200,7 @@ public class Main extends Application{
         Stage default_primaryStage = new Stage();
         try {
             defaultScreen.start(default_primaryStage);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
