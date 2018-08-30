@@ -13,7 +13,6 @@ import com.google.gson.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
@@ -24,29 +23,29 @@ import java.util.*;
 public class OverviewScreen extends Application {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    Map<String, int[]> mappedRRValues;
+    private Map<String, int[]> mappedRRValues;
 
     @Override
-    public void start(Stage starterStage) throws Exception {
+    public void start(Stage starterStage) {
 
         BorderPane layout = new BorderPane();
 
         MenuBar menuBar = new MenuBar();
 
-        // Creating the About Us Menu
+        // Creating the "About Us" Menu
 
         Menu aboutTheProgram = new Menu("Medical_Data_Plot");
         MenuItem aboutUs = new MenuItem("About Medical_Data_Plot");
         MenuItem quitProgram = new MenuItem("Quit");
         aboutTheProgram.getItems().addAll(aboutUs, quitProgram);
 
-        // Creating the Medi-Plan Menu
+        // Creating the "Medi-Plan" Menu
 
         Menu myMedics = new Menu("My Medi-Plan");
         MenuItem showMediPlan = new MenuItem("Show my Medi-Plan");
         myMedics.getItems().add(showMediPlan);
 
-        // Creating the Doctor Appointement Menu
+        // Creating the "Doctor Appointement" Menu
 
         Menu myNextAppointements = new Menu("Doctor Appointments");
         MenuItem showAppointements = new MenuItem("Show next appointements");
@@ -79,10 +78,8 @@ public class OverviewScreen extends Application {
             }
         });
 
-
         layout.setTop(menuBar);
         layout.setLeft(chooseAction);
-
 
         Scene scene = new Scene(layout, 450, 300);
         starterStage.setScene(scene);
@@ -93,15 +90,14 @@ public class OverviewScreen extends Application {
     }
 
     /**
-     * This method starts the screen, whrere the user could enter his RR-Data.
+     * This method starts the screen, whrere the user could enter his RR-Data. When starting this stage, the JSON File will
+     * be loaded (if it exists) to prepare the datas for further use.
      * The Button is only enabled, if the User gives the input in a correct format e.g both values (the systolic and
      * the diastolic RR-value have to be a 2-3 digit (0-9) number.
-     * <p>
-     * TODO: This method contains just a placeholder line chart for general testing, will be replaced soon
      *
      * @param owner the "owner" stage of the new Window
      */
-    public void showBloodPressureScreen(Stage owner) {
+    private void showBloodPressureScreen(Stage owner) {
         GridPane createRRScreen = new GridPane();
         createRRScreen.setPadding(new Insets(10));
         createRRScreen.setVgap(8);
@@ -121,8 +117,7 @@ public class OverviewScreen extends Application {
         newWindow.setOnShowing(event -> {
 
             if (new File("Mapped_RR_Value_Sample.json").exists()) {
-                Type type = new TypeToken<TreeMap<String, int[]>>() {
-                }.getType();
+                Type type = new TypeToken<TreeMap<String, int[]>>() {}.getType();
                 try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample.json"))) {
                     mappedRRValues = gson.fromJson(br, type);
                 } catch (FileNotFoundException e) {
@@ -154,13 +149,15 @@ public class OverviewScreen extends Application {
         xAxis.setLabel("Date");
         //creating the chart
         final LineChart<String, Number> lineChart =
-                new LineChart<String, Number>(xAxis, yAxis);
+                new LineChart<>(xAxis, yAxis);
 
         lineChart.setTitle("Blood Pressure trend");
+
         //defining the systolic series
         XYChart.Series SysSeries = new XYChart.Series();
         SysSeries.setName("Systolic RR-value");
 
+        //defining the diastolic series
         XYChart.Series DiaSeries = new XYChart.Series();
         DiaSeries.setName("Diastolic RR-value");
 
@@ -183,8 +180,7 @@ public class OverviewScreen extends Application {
             String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
             mappedRRValues.put(formattedDateTime, mapRRData);
 
-            // map.forEach((k, v) -> i[0] += k + v);
-            //populating the series with data
+            //populating the series with data received from the "Mapped_RR_Value_Sample.json" - File
             for (Map.Entry<String, int[]> entry : mappedRRValues.entrySet()) {
                 SysSeries.getData().add(new XYChart.Data<String, Number>(entry.getKey(), entry.getValue()[0]));
                 DiaSeries.getData().add(new XYChart.Data<String, Number>(entry.getKey(), entry.getValue()[1]));
@@ -195,7 +191,14 @@ public class OverviewScreen extends Application {
         Button backFromRRScreen = new Button("Click to go back");
         GridPane.setConstraints(backFromRRScreen, 1, 2);
 
-        backFromRRScreen.setOnAction(e -> newWindow.close());
+        /*
+         * Clicking the "Back-Button", the Data will be written to "Mapped_RR_Value_Sample.json"
+         */
+
+        backFromRRScreen.setOnAction(e -> {
+            writeRRDataToJSON();
+            newWindow.close();
+        });
 
         BooleanBinding bb = new BooleanBinding() {
             {
@@ -214,26 +217,20 @@ public class OverviewScreen extends Application {
         enterRRData.disableProperty().bind(bb);
 
         createRRScreen.getChildren().addAll(enterRRData, bloodPressureSystolic, bloodPressureDiastolic, backFromRRScreen);
-
         newWindow.show();
 
-        newWindow.setOnCloseRequest(event -> {
-            System.out.println("RRScreen is closing");
-            try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample.json")) {
-                gson.toJson(mappedRRValues, writer);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        /*
+         * Closing the Screen, the Data will be written to "Mapped_RR_Value_Sample.json"
+         */
+        newWindow.setOnCloseRequest(event -> writeRRDataToJSON());
     }
 
     /**
-     * This method starts the screen, whrere the user could enter his Blood Sugar levels
+     * This method starts the screen, where the user could enter his Blood Sugar levels
      *
      * @param owner the "owner" stage of the new Window
      */
-    public void showBloodSugarScreen(Stage owner) {
+    private void showBloodSugarScreen(Stage owner) {
         GridPane createBSScreen = new GridPane();
         createBSScreen.setPadding(new Insets(10));
         createBSScreen.setVgap(8);
@@ -250,7 +247,8 @@ public class OverviewScreen extends Application {
         newWindow.setY(owner.getY() + 100);
 
         Button backFromBSScreen = new Button("Click to go back");
-        backFromBSScreen.setOnAction(e -> newWindow.close());
+        backFromBSScreen.setOnAction(e -> newTestStage.createNewTestStage());
+                //newWindow.close());
         createBSScreen.getChildren().add(backFromBSScreen);
 
         newWindow.show();
@@ -261,7 +259,7 @@ public class OverviewScreen extends Application {
      *
      * @param owner the "owner" stage of the new Window
      */
-    public void showHearthRateScreen(Stage owner) {
+    private void showHearthRateScreen(Stage owner) {
         GridPane createBPMScreen = new GridPane();
         createBPMScreen.setPadding(new Insets(10));
         createBPMScreen.setVgap(8);
@@ -289,7 +287,7 @@ public class OverviewScreen extends Application {
      *
      * @param owner the "owner" stage of the new Window
      */
-    public void showOthersScreen(Stage owner) {
+    private void showOthersScreen(Stage owner) {
         GridPane createOthersScreen = new GridPane();
         createOthersScreen.setPadding(new Insets(10));
         createOthersScreen.setVgap(8);
@@ -310,5 +308,17 @@ public class OverviewScreen extends Application {
         createOthersScreen.getChildren().add(backFromOthersScreen);
 
         newWindow.show();
+    }
+
+    /**
+     * This method writes the received data for RR-levels into the JSON-File called "Mapped_RR_Value_Sample.json"
+     */
+    private void writeRRDataToJSON() {
+        try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample.json")) {
+            gson.toJson(mappedRRValues, writer);
+
+        } catch (IOException exc) {
+            exc.printStackTrace();
+        }
     }
 }
