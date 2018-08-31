@@ -8,11 +8,11 @@ public class User {
     }
 
     @Override
-    public boolean equals(Object other){
+    public boolean equals(Object other) {
         if (other == null) return false;
         if (other == this) return true;
-        if (!(other instanceof User))return false;
-        User otherUser = (User)other;
+        if (!(other instanceof User)) return false;
+        User otherUser = (User) other;
 
         return otherUser.getUsername().equals(Username) && otherUser.getPassword().equals(password);
     }
@@ -26,8 +26,8 @@ public class User {
     }
 
     @Override
-    public String toString(){
-        return "Username: "+getUsername()+" und Passwort: "+getPassword();
+    public String toString() {
+        return "Username: " + getUsername() + " and password: " + getPassword();
     }
 
 
