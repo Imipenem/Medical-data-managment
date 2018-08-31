@@ -46,10 +46,10 @@ public class OverviewScreen extends Application {
         MenuItem showMediPlan = new MenuItem("Show my Medi-Plan");
         myMedics.getItems().add(showMediPlan);
 
-        // Creating the Doctor Appointement Menu
+        // Creating the Doctor Appointment Menu
 
         Menu myNextAppointements = new Menu("Doctor Appointments");
-        MenuItem showAppointements = new MenuItem("Show next appointements");
+        MenuItem showAppointements = new MenuItem("Show next appointments");
         myNextAppointements.getItems().add(showAppointements);
 
         menuBar.getMenus().addAll(aboutTheProgram, myMedics, myNextAppointements);
