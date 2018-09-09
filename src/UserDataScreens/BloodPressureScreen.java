@@ -58,22 +58,7 @@ public class BloodPressureScreen {
         newWindow.setX(owner.getX() + 200);
         newWindow.setY(owner.getY() + 100);
 
-        newWindow.setOnShowing(event -> {
-
-            if (new File("Mapped_RR_Value_Sample.json").exists()) {
-                Type type = new TypeToken<TreeMap<String,Pair>>() {
-                }.getType();
-                try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample.json"))) {
-                    mappedRRValues = gson.fromJson(br, type);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                mappedRRValues = new TreeMap<>();
-            }
-        });
+        newWindow.setOnShowing(event -> readRRDataFromJSON());
 
 
         TextField bloodPressureSystolic = new TextField();
@@ -120,10 +105,7 @@ public class BloodPressureScreen {
 
         enterRRData.setOnAction(event -> {
             Pair<Integer,Integer> rrPair = new Pair<>(Integer.parseInt(bloodPressureSystolic.getText()),Integer.parseInt(bloodPressureDiastolic.getText()));
-            //int[] mapRRData = new int[2];
             LocalDateTime measuredDateTime = LocalDateTime.now();
-            //mapRRData[0] = Integer.parseInt(bloodPressureSystolic.getText());
-            //mapRRData[1] = Integer.parseInt(bloodPressureDiastolic.getText());
             String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
             mappedRRValues.put(formattedDateTime, rrPair);
 
@@ -181,6 +163,27 @@ public class BloodPressureScreen {
 
         } catch (IOException exc) {
             exc.printStackTrace();
+        }
+    }
+
+    /**
+     * This method reads the RR-Data from the JSON-File
+     * If it doesnt exist ,the RRData will be stored (for temporary use) in a newly initialized TreeMap
+     */
+
+    private void readRRDataFromJSON() {
+        if (new File("Mapped_RR_Value_Sample.json").exists()) {
+            Type type = new TypeToken<TreeMap<String,Pair>>() {
+            }.getType();
+            try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample.json"))) {
+                mappedRRValues = gson.fromJson(br, type);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mappedRRValues = new TreeMap<>();
         }
     }
 
