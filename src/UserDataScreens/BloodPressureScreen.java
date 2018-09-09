@@ -31,7 +31,7 @@ import java.util.TreeMap;
 public class BloodPressureScreen {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private Map<String, int[]> mappedRRValues;
+    private Map<String, Pair> mappedRRValues;
 
     /**
      * This method starts the screen, where the user could enter his RR-Data. When starting this stage, the JSON File will
@@ -61,7 +61,7 @@ public class BloodPressureScreen {
         newWindow.setOnShowing(event -> {
 
             if (new File("Mapped_RR_Value_Sample.json").exists()) {
-                Type type = new TypeToken<TreeMap<String, int[]>>() {
+                Type type = new TypeToken<TreeMap<String,Pair>>() {
                 }.getType();
                 try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample.json"))) {
                     mappedRRValues = gson.fromJson(br, type);
@@ -87,6 +87,7 @@ public class BloodPressureScreen {
 
         Button enterRRData = new Button("Confirm");
         GridPane.setConstraints(enterRRData, 0, 2);
+        enterRRData.setDefaultButton(true);
         enterRRData.setDisable(true);
 
         final CategoryAxis xAxis = new CategoryAxis();
@@ -118,17 +119,18 @@ public class BloodPressureScreen {
 
 
         enterRRData.setOnAction(event -> {
-            int[] mapRRData = new int[2];
+            Pair<Integer,Integer> rrPair = new Pair<>(Integer.parseInt(bloodPressureSystolic.getText()),Integer.parseInt(bloodPressureDiastolic.getText()));
+            //int[] mapRRData = new int[2];
             LocalDateTime measuredDateTime = LocalDateTime.now();
-            mapRRData[0] = Integer.parseInt(bloodPressureSystolic.getText());
-            mapRRData[1] = Integer.parseInt(bloodPressureDiastolic.getText());
+            //mapRRData[0] = Integer.parseInt(bloodPressureSystolic.getText());
+            //mapRRData[1] = Integer.parseInt(bloodPressureDiastolic.getText());
             String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
-            mappedRRValues.put(formattedDateTime, mapRRData);
+            mappedRRValues.put(formattedDateTime, rrPair);
 
             //populating the series with data received from the "Mapped_RR_Value_Sample.json" - File
-            for (Map.Entry<String, int[]> entry : mappedRRValues.entrySet()) {
-                SysSeries.getData().add(new XYChart.Data<String, Number>(entry.getKey(), entry.getValue()[0]));
-                DiaSeries.getData().add(new XYChart.Data<String, Number>(entry.getKey(), entry.getValue()[1]));
+            for (Map.Entry<String, Pair> entry : mappedRRValues.entrySet()) {
+                SysSeries.getData().add(new XYChart.Data<String, Object>(entry.getKey(), entry.getValue().getFirstValue()));
+                DiaSeries.getData().add(new XYChart.Data<String, Object>(entry.getKey(), entry.getValue().getSecValue()));
             }
             rrPlotWindow.show();
         });

@@ -32,7 +32,7 @@ public class LoginScreen {
         grid.setVgap(8);
         grid.setHgap(10);
 
-        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:LoginScreenBackground.png", 450, 350, false, true),
+        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:src/maindir/resources/LoginScreenBackground.png", 450, 350, false, true),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 BackgroundSize.DEFAULT);
 
