@@ -31,8 +31,9 @@ public class LoginScreen {
         grid.setPadding(new Insets(10));
         grid.setVgap(8);
         grid.setHgap(10);
-
-        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:src/maindir/resources/LoginScreenBackground.png", 450, 350, false, true),
+//this.getClass().getResource("foo.txt");
+        //"file:src/maindir/resources/LoginScreenBackground.png"
+        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image(LoginScreen.class.getClass().getResourceAsStream("resources/LoginScreenBackground.png"), 450, 350, false, true),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 BackgroundSize.DEFAULT);
 
