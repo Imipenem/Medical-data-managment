@@ -33,7 +33,7 @@ public class LoginScreen {
         grid.setHgap(10);
 //this.getClass().getResource("foo.txt");
         //"file:src/maindir/resources/LoginScreenBackground.png"
-        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image(LoginScreen.class.getClass().getResourceAsStream("resources/LoginScreenBackground.png"), 450, 350, false, true),
+        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:/Users/philippehmele/IdeaProjects/PhilippsTest/src/resources/LoginScreenBackground.png", 450, 350, false, true),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 BackgroundSize.DEFAULT);
 
@@ -105,7 +105,7 @@ public class LoginScreen {
             User localDummyUser = new User(nameInput.getText(), passwordInput.getText());
             if (UserSample.contains(localDummyUser)) {
                 writeUserDataToJSON();
-                OverviewScreen OScreen = new OverviewScreen();
+                OverviewScreen OScreen = new OverviewScreen(localDummyUser.getUsername());
                 OScreen.createOverviewScreen();
                 primaryStage.close();
 

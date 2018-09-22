@@ -14,6 +14,12 @@ import javafx.stage.Stage;
 
 public class OverviewScreen {
 
+    private String username;
+
+    public OverviewScreen(String username) {
+        this.username = username;
+    }
+
 
     public void createOverviewScreen() {
 
@@ -51,7 +57,7 @@ public class OverviewScreen {
         chooseAction.getSelectionModel().selectedItemProperty().addListener((v, oldValue, newValue) -> {
             switch (newValue) {
                 case "Blood Pressure":
-                    BloodPressureScreen rrScreen = new BloodPressureScreen();
+                    BloodPressureScreen rrScreen = new BloodPressureScreen(getUsername());
                     rrScreen.showBloodPressureScreen(starterStage);
                     break;
 
@@ -74,9 +80,13 @@ public class OverviewScreen {
 
         Scene scene = new Scene(layout, 450, 300);
         starterStage.setScene(scene);
-        starterStage.setTitle("Medical_Data Plot: Track your health level");
+        starterStage.setTitle("Medical_Data Plot: Let´s track your health level, "+ getUsername());
         starterStage.setMinWidth(450);
         starterStage.setMinHeight(300);
         starterStage.show();
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

@@ -32,6 +32,11 @@ public class BloodPressureScreen {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private Map<String, Pair> mappedRRValues;
+    private String username;
+
+    public BloodPressureScreen(String username) {
+        this.username = username;
+    }
 
     /**
      * This method starts the screen, where the user could enter his RR-Data. When starting this stage, the JSON File will
@@ -155,10 +160,12 @@ public class BloodPressureScreen {
     }
 
     /**
-     * This method writes the received data for RR-levels into the JSON-File called "Mapped_RR_Value_Sample.json"
+     * This method writes the received data for RR-levels into a User specific JSON-File"
+     *
+     * ***IMPORTANT NOTE: This might be replaced in further implementations with an SQL Database!***
      */
     private void writeRRDataToJSON() {
-        try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample.json")) {
+        try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample_User: "+getUsername()+".json")) {
             gson.toJson(mappedRRValues, writer);
 
         } catch (IOException exc) {
@@ -167,15 +174,18 @@ public class BloodPressureScreen {
     }
 
     /**
-     * This method reads the RR-Data from the JSON-File
+     * This method reads the RR-Data from the User specific JSON-File
+     *
+     * ***IMPORTANT NOTE: This might be replaced in further implementations with an SQL Database!***
+     *
      * If it doesnt exist ,the RRData will be stored (for temporary use) in a newly initialized TreeMap
      */
 
     private void readRRDataFromJSON() {
-        if (new File("Mapped_RR_Value_Sample.json").exists()) {
+        if (new File("Mapped_RR_Value_Sample_User: "+getUsername()+".json").exists()) {
             Type type = new TypeToken<TreeMap<String,Pair>>() {
             }.getType();
-            try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample.json"))) {
+            try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample_User: "+getUsername()+".json"))) {
                 mappedRRValues = gson.fromJson(br, type);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -187,4 +197,7 @@ public class BloodPressureScreen {
         }
     }
 
+    public String getUsername() {
+        return username;
+    }
 }
