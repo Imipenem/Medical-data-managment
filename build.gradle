@@ -20,7 +20,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.src.Main'
+                'Main-Class': 'com.src.main.java.maindir.Main'
         )
     }
 }

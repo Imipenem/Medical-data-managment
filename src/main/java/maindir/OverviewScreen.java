@@ -1,3 +1,9 @@
+package maindir;
+
+import UserDataScreens.BloodPressureScreen;
+import UserDataScreens.BloodSugarScreen;
+import UserDataScreens.HeartRateScreen;
+import UserDataScreens.OthersScreen;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.*;

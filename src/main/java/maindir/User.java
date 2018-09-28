@@ -1,8 +1,10 @@
+package maindir;
+
 public class User {
     private String password;
     private String Username;
 
-    User(String username, String password) {
+    public User(String username, String password) {
         this.password = password;
         Username = username;
     }

@@ -1,3 +1,5 @@
+package UserManagement;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -8,6 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import maindir.OverviewScreen;
+import maindir.User;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -31,12 +35,9 @@ public class LoginScreen {
         grid.setPadding(new Insets(10));
         grid.setVgap(8);
         grid.setHgap(10);
-//this.getClass().getResource("foo.txt");
-        //"file:src/maindir/resources/LoginScreenBackground.png"
-        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image("file:/Users/philippehmele/IdeaProjects/PhilippsTest/src/resources/LoginScreenBackground.png", 450, 350, false, true),
+        BackgroundImage backgroundLoginScreen = new BackgroundImage(new Image(getClass().getResourceAsStream("/Background/LoginScreenBackground.png"), 450, 350, false, true),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 BackgroundSize.DEFAULT);
-
         Label UserName = new Label("Username:");
         UserName.setTextFill(Paint.valueOf("red"));
         GridPane.setConstraints(UserName, 0, 0);

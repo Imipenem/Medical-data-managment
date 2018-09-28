@@ -1,3 +1,6 @@
+package UserDataScreens;
+
+import Helper.Pair;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -20,7 +23,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.TreeMap;
-
 /**
  * This class represents the screen, where the user can enter his RR-levels.
  * The data will be saved using a JSON-File, where the program is mapping the actual date with the two values (diastolic and systolic).

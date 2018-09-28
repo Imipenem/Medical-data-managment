@@ -1,18 +1,20 @@
+package Helper;
+
 public class Pair<V,S> {
 
     private V firstValue;
     private S secValue;
 
-    Pair(V firstValue, S secValue) {
+    public Pair(V firstValue, S secValue) {
         this.firstValue = firstValue;
         this.secValue = secValue;
     }
 
-    V getFirstValue() {
+    public V getFirstValue() {
         return firstValue;
     }
 
-    S getSecValue() {
+    public S getSecValue() {
         return secValue;
     }
 

@@ -1,3 +1,6 @@
+package maindir;
+
+import UserManagement.LoginScreen;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
