@@ -10,18 +10,20 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import maindir.User;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
  * This class represents the Registration Screen, where the User can choose a username and password.
  * Spaces will be removed to prevent false input.
- * <p>
- * TODO: Ensure that the Username (at least) is unique!
  */
 
 public class RegisterScreen {
 
-    public void registerNewUser(Stage primaryStage, List<User> UserSample) {
+    public void createRegistrationScreen(Stage primaryStage) {
         GridPane createLayoutScreen = new GridPane();
         createLayoutScreen.setPadding(new Insets(10));
         createLayoutScreen.setVgap(8);
@@ -51,22 +53,59 @@ public class RegisterScreen {
         TextField passwordInput1 = new TextField();
         GridPane.setConstraints(passwordInput1, 1, 1);
 
+        /*TODO: Enable Ok Button only when both fields not empty (REGEX for name)
+         */
+
         Button okButton = new Button("            OK          ");
         GridPane.setConstraints(okButton, 0, 2);
 
-        /*
-         * Write the User Data to the List to keep it for the running cycle!
-         */
 
-        okButton.setOnAction(e -> {
-            nameInput2.setText(nameInput2.getText().replaceAll(" ", ""));
-            passwordInput1.setText(passwordInput1.getText().replaceAll(" ", ""));
-            User currentUser = new User(nameInput2.getText(), passwordInput1.getText());
-            UserSample.add(currentUser);
+        okButton.setOnAction(e -> {storeUserInDatabase(nameInput2.getText().replaceAll(" ", ""),passwordInput1.getText());
             newWindow.close();
         });
 
         createLayoutScreen.getChildren().addAll(choosesUserName, nameInput2, choosePassword, passwordInput1, okButton);
         newWindow.show();
     }
+
+   /** TODO ID for DB, unique Username, only one preparedStatement, ExceptionsHandling
+
+    /**
+     * This method stores the recently registered user in the "LoginData" Database. Therefore, it stores
+     * the username and the password for each user.
+     *
+     * @param username the username (identifier) of the user
+     * @param password the password of the user
+     */
+
+    private void storeUserInDatabase(String username, String password) {
+        try (Connection conn = connect()) {
+            assert conn != null;
+            PreparedStatement createDatabase = conn.prepareStatement("CREATE TABLE IF NOT EXISTS LoginData(username varchar(255) NOT NULL, passwort varchar(255) NOT NULL, PRIMARY KEY (username))");
+            createDatabase.executeUpdate();
+
+            PreparedStatement insertInDB = conn.prepareStatement("INSERT INTO LoginData VALUES(?,?)");
+            insertInDB.setString(1,username);
+            insertInDB.setString(2,password);
+            insertInDB.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Get a connection to a database
+     *
+     * @return (if available) the connection to the specified Database
+     */
+    private Connection connect() {
+        try {
+            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "YOUWILLNOTSTEALPASSWORD");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
+

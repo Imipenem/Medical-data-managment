@@ -1,8 +1,5 @@
 package UserManagement;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,24 +8,20 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import maindir.OverviewScreen;
-import maindir.User;
-
-import java.io.*;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.Objects;
 
 /**
  * This class represents the login screen. The user is able to decide whether to create a new account ("Register") or
  * to log in with an already existing user account.
- * The User Data will be saved to a JSON-File in both cases whether the User logs in right after registration or closes the Login Screen immediately
- * after registration.
+ *
+ * The Users LoginData will be saved in a SQL Database using MySQL (NOTE: THIS IS A EARLY IMPLEMENTATION)
+ * WILL IMPROVE THIS WITH FURTHER COMMITS
  */
 
 public class LoginScreen {
-
-    private List<User> UserSample = new ArrayList<>();
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private TextField passwordInput;
+    private TextField nameInput;
 
     public void createLoginScreen(Stage primaryStage) {
         GridPane grid = new GridPane();
@@ -43,7 +36,7 @@ public class LoginScreen {
         GridPane.setConstraints(UserName, 0, 0);
         UserName.prefHeight(40);
 
-        TextField nameInput = new TextField();
+        nameInput = new TextField();
         GridPane.setConstraints(nameInput, 1, 0);
         nameInput.setPromptText("Username");
         nameInput.setPrefHeight(40);
@@ -53,7 +46,7 @@ public class LoginScreen {
         GridPane.setConstraints(password, 0, 1);
         password.prefHeight(40);
 
-        TextField passwordInput = new TextField();
+        passwordInput = new TextField();
         GridPane.setConstraints(passwordInput, 1, 1);
         passwordInput.setPrefHeight(40);
 
@@ -72,59 +65,16 @@ public class LoginScreen {
         logInButton.setMaxHeight(40);
         logInButton.setDefaultButton(true);
 
-        if (new File("UserData.json").exists()) {
-            try (BufferedReader br = new BufferedReader(new FileReader("UserData.json"))) {
 
-                // Convert JSON to Java Object
-
-                Type listType = new TypeToken<ArrayList<User>>() {
-                }.getType();
-                List<User> staff2 = gson.fromJson(br, listType);
-
-                if (UserSample.size() > staff2.size()) {
-                    staff2 = UserSample;
-                } else {
-                    UserSample = staff2;
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
         createNewAccount.setOnAction(event -> {
             RegisterScreen regScreen = new RegisterScreen();
-            regScreen.registerNewUser(primaryStage, UserSample);
+            regScreen.createRegistrationScreen(primaryStage);
         });
 
-        /*
-         * Load the existing UserData from the JSON-File and check, if the typed in fits one.
-         */
 
-        logInButton.setOnAction(event -> {
+        logInButton.setOnAction(event -> processLogin(primaryStage));
 
-            User localDummyUser = new User(nameInput.getText(), passwordInput.getText());
-            if (UserSample.contains(localDummyUser)) {
-                writeUserDataToJSON();
-                OverviewScreen OScreen = new OverviewScreen(localDummyUser.getUsername());
-                OScreen.createOverviewScreen();
-                primaryStage.close();
-
-            } else {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Your password or Username were incorrect! Please reenter", ButtonType.OK, ButtonType.CANCEL);
-                alert.showAndWait();
-
-                if (alert.getResult().equals(ButtonType.OK)) {
-                    nameInput.setText("");
-                    nameInput.requestFocus();
-                    passwordInput.setText("");
-                    alert.close();
-                } else if (alert.getResult().equals(ButtonType.CANCEL)) {
-                    alert.close();
-                    primaryStage.close();
-                }
-            }
-        });
         grid.getChildren().addAll(UserName, nameInput, password, passwordInput, createNewAccount, logInButton);
         grid.setBackground(new Background(backgroundLoginScreen));
 
@@ -132,21 +82,54 @@ public class LoginScreen {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Welcome to Medical_Data Plot");
         primaryStage.show();
-
-        /*
-         * The User Data is written to the JSON-File only when the stage is closing and re-written for every further cycle!
-         */
-        primaryStage.setOnCloseRequest(e -> writeUserDataToJSON());
     }
 
-    private void writeUserDataToJSON() {
-        System.out.println("LoginScreen is closing");
-        try (FileWriter writer = new FileWriter("UserData.json")) {
 
-            gson.toJson(UserSample, writer);
+    private void processLogin(Stage logScreen) {
+        try (Connection myConn = connect();
+             Statement myStat = Objects.requireNonNull(myConn).createStatement()) {
+            ResultSet myRs = myStat.executeQuery("SELECT passwort FROM LoginData WHERE username = '"+nameInput.getText()+"'");
+            if(!myRs.isBeforeFirst()){
+                setFalseUsernameAlert();
+            }
+            else if (myRs.next()){
+                if (myRs.getString("passwort").equals(passwordInput.getText())){
+                    logScreen.close();
+                    OverviewScreen OScreen = new OverviewScreen(nameInput.getText());
+                    OScreen.createOverviewScreen();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }}
 
-        } catch (IOException exc) {
-            exc.printStackTrace();
+        private void setFalseUsernameAlert () {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Your Username is incorrect! Please reenter or create a new Account", ButtonType.OK, ButtonType.CANCEL);
+            alert.showAndWait();
+
+            if (alert.getResult().equals(ButtonType.OK)) {
+                nameInput.setText("");
+                nameInput.requestFocus();
+                passwordInput.setText("");
+                alert.close();
+            } else if (alert.getResult().equals(ButtonType.CANCEL)) {
+                alert.close();
+            }
+        }
+
+        /*±
+         * Get a connection to a database
+         *
+         * @return (if available) the connection to the specified Database
+         */
+        private Connection connect() {
+            try {
+                return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "YOUWILLNOTSTEALPASSWORD");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+
         }
     }
-}
