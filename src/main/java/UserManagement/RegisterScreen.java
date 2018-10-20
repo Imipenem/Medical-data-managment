@@ -1,5 +1,7 @@
 package UserManagement;
 
+import Helper.ButtonConfiguration;
+import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -8,20 +10,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import maindir.User;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
+import java.sql.*;
 
 /**
  * This class represents the Registration Screen, where the User can choose a username and password.
  * Spaces will be removed to prevent false input.
  */
 
-public class RegisterScreen {
+public class RegisterScreen implements FailedLoginAlert {
+
+    private Button okButton;
+    private TextField nameInput2;
+    private TextField passwordInput1;
 
     public void createRegistrationScreen(Stage primaryStage) {
         GridPane createLayoutScreen = new GridPane();
@@ -43,21 +44,24 @@ public class RegisterScreen {
         Label choosesUserName = new Label("Choose your username:");
         GridPane.setConstraints(choosesUserName, 0, 0);
 
-        TextField nameInput2 = new TextField();
+        nameInput2 = new TextField();
         GridPane.setConstraints(nameInput2, 1, 0);
         nameInput2.setPromptText("Username");
 
         Label choosePassword = new Label("Choose your password:");
         GridPane.setConstraints(choosePassword, 0, 1);
 
-        TextField passwordInput1 = new TextField();
+        passwordInput1 = new TextField();
         GridPane.setConstraints(passwordInput1, 1, 1);
 
         /*TODO: Enable Ok Button only when both fields not empty (REGEX for name)
          */
 
-        Button okButton = new Button("            OK          ");
+        okButton = new Button("            OK          ");
         GridPane.setConstraints(okButton, 0, 2);
+        okButton.setDefaultButton(true);
+        okButton.setDisable(true);
+        enterButtConf.configureButton();
 
 
         okButton.setOnAction(e -> {storeUserInDatabase(nameInput2.getText().replaceAll(" ", ""),passwordInput1.getText());
@@ -68,7 +72,7 @@ public class RegisterScreen {
         newWindow.show();
     }
 
-   /** TODO ID for DB, unique Username, only one preparedStatement, ExceptionsHandling
+   /** TODO ID for DB, ExceptionsHandling
 
     /**
      * This method stores the recently registered user in the "LoginData" Database. Therefore, it stores
@@ -81,14 +85,18 @@ public class RegisterScreen {
     private void storeUserInDatabase(String username, String password) {
         try (Connection conn = connect()) {
             assert conn != null;
-            PreparedStatement createDatabase = conn.prepareStatement("CREATE TABLE IF NOT EXISTS LoginData(username varchar(255) NOT NULL, passwort varchar(255) NOT NULL, PRIMARY KEY (username))");
+            PreparedStatement createDatabase = conn.prepareStatement("CREATE TABLE IF NOT EXISTS LoginData(username varchar(255) NOT NULL UNIQUE, passwort varchar(255) NOT NULL, PRIMARY KEY (username))");
             createDatabase.executeUpdate();
 
             PreparedStatement insertInDB = conn.prepareStatement("INSERT INTO LoginData VALUES(?,?)");
             insertInDB.setString(1,username);
             insertInDB.setString(2,password);
             insertInDB.executeUpdate();
-        } catch (Exception e) {
+        }
+         catch (SQLIntegrityConstraintViolationException dublEntry){
+             FailedLoginAlert.super.showFailedLoginAlert("This username already exists. Please choose another name.");
+        }
+         catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -101,11 +109,33 @@ public class RegisterScreen {
      */
     private Connection connect() {
         try {
-            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "YOUWILLNOTSTEALPASSWORD");
+            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "TbC9ir27!");
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * This method reference binds the enable property of the OK- Button to the fact whether the inputs are empty or not.
+     */
+
+    private ButtonConfiguration enterButtConf = this::configureRegisterButton;
+
+    private void configureRegisterButton() {
+        BooleanBinding bb = new BooleanBinding() {
+            {
+                super.bind(nameInput2.textProperty(),
+                        passwordInput1.textProperty());
+            }
+
+            @Override
+            protected boolean computeValue() {
+                return ((nameInput2.getText().isEmpty()
+                        || passwordInput1.getText().isEmpty()));
+            }
+        };
+        okButton.disableProperty().bind(bb);
     }
 }
 

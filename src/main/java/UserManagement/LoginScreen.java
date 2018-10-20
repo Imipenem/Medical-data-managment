@@ -1,5 +1,7 @@
 package UserManagement;
 
+import Helper.ButtonConfiguration;
+import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -9,7 +11,6 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import maindir.OverviewScreen;
 import java.sql.*;
-import java.util.Objects;
 
 /**
  * This class represents the login screen. The user is able to decide whether to create a new account ("Register") or
@@ -19,9 +20,10 @@ import java.util.Objects;
  * WILL IMPROVE THIS WITH FURTHER COMMITS
  */
 
-public class LoginScreen {
+public class LoginScreen implements FailedLoginAlert {
     private TextField passwordInput;
     private TextField nameInput;
+    private Button logInButton;
 
     public void createLoginScreen(Stage primaryStage) {
         GridPane grid = new GridPane();
@@ -58,12 +60,14 @@ public class LoginScreen {
         createNewAccount.setMaxHeight(40);
 
 
-        Button logInButton = new Button("Log in");
+        logInButton = new Button("Log in");
         GridPane.setConstraints(logInButton, 0, 2);
         logInButton.prefWidthProperty().bind(grid.widthProperty());
         logInButton.prefHeightProperty().bind(grid.heightProperty());
         logInButton.setMaxHeight(40);
         logInButton.setDefaultButton(true);
+        logInButton.setDisable(true);
+        myButtConfiq.configureButton();
 
 
 
@@ -87,35 +91,21 @@ public class LoginScreen {
 
     private void processLogin(Stage logScreen) {
         try (Connection myConn = connect();
-             Statement myStat = Objects.requireNonNull(myConn).createStatement()) {
-            ResultSet myRs = myStat.executeQuery("SELECT passwort FROM LoginData WHERE username = '"+nameInput.getText()+"'");
-            if(!myRs.isBeforeFirst()){
-                setFalseUsernameAlert();
+             PreparedStatement myStat =  myConn.prepareStatement("SELECT passwort FROM LoginData WHERE username = '"+nameInput.getText()+"'")) {
+             ResultSet myRs= myStat.executeQuery();
+
+             if(!myRs.next() || !myRs.getString("passwort").equals(passwordInput.getText())) {
+                FailedLoginAlert.super.showFailedLoginAlert("Username or Password incorrect: Please reenter");
             }
-            else if (myRs.next()){
-                if (myRs.getString("passwort").equals(passwordInput.getText())){
+            else {
                     logScreen.close();
                     OverviewScreen OScreen = new OverviewScreen(nameInput.getText());
                     OScreen.createOverviewScreen();
                 }
-            }
         } catch (SQLException e) {
             e.printStackTrace();
-        }}
-
-        private void setFalseUsernameAlert () {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Your Username is incorrect! Please reenter or create a new Account", ButtonType.OK, ButtonType.CANCEL);
-            alert.showAndWait();
-
-            if (alert.getResult().equals(ButtonType.OK)) {
-                nameInput.setText("");
-                nameInput.requestFocus();
-                passwordInput.setText("");
-                alert.close();
-            } else if (alert.getResult().equals(ButtonType.CANCEL)) {
-                alert.close();
-            }
         }
+    }
 
         /*±
          * Get a connection to a database
@@ -124,12 +114,31 @@ public class LoginScreen {
          */
         private Connection connect() {
             try {
-                return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "YOUWILLNOTSTEALPASSWORD");
+                return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "TbC9ir27!");
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
             }
-
-
         }
-    }
+
+    /**
+     * This method reference binds the enable property of the login Button to the fact whether the inputs are empty or not.
+     */
+    private ButtonConfiguration myButtConfiq = this::bindLoginButton;
+
+        private void bindLoginButton() {
+            BooleanBinding bb = new BooleanBinding() {
+                {
+                    super.bind(nameInput.textProperty(),
+                            passwordInput.textProperty());
+                }
+
+                @Override
+                protected boolean computeValue() {
+                    return ((nameInput.getText().isEmpty()
+                            || passwordInput.getText().isEmpty()));
+                }
+            };
+            logInButton.disableProperty().bind(bb);
+        }
+}

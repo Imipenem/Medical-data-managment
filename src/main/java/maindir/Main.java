@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     /**
-     * Starting this JavFX Application will result in showing the LoginScreen
+     * Starting this JavaFX Application will result in showing the LoginScreen
      *
      * @param primaryStage the stage for showing the LoginScreen
      */

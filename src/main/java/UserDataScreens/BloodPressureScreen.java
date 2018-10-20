@@ -1,5 +1,6 @@
 package UserDataScreens;
 
+import Helper.ButtonConfiguration;
 import Helper.Pair;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.TreeMap;
+
 /**
  * This class represents the screen, where the user can enter his RR-levels.
  * The data will be saved using a JSON-File, where the program is mapping the actual date with the two values (diastolic and systolic).
@@ -35,6 +37,9 @@ public class BloodPressureScreen {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private Map<String, Pair> mappedRRValues;
     private String username;
+    private TextField bloodPressureSystolic;
+    private TextField bloodPressureDiastolic;
+    private Button enterRRData;
 
     public BloodPressureScreen(String username) {
         this.username = username;
@@ -68,19 +73,20 @@ public class BloodPressureScreen {
         newWindow.setOnShowing(event -> readRRDataFromJSON());
 
 
-        TextField bloodPressureSystolic = new TextField();
+        bloodPressureSystolic = new TextField();
         bloodPressureSystolic.setPromptText("Your systolic value");
         GridPane.setConstraints(bloodPressureSystolic, 0, 0);
 
-        TextField bloodPressureDiastolic = new TextField();
+        bloodPressureDiastolic = new TextField();
         bloodPressureDiastolic.setPromptText("Your diastolic value");
         GridPane.setConstraints(bloodPressureDiastolic, 0, 1);
 
 
-        Button enterRRData = new Button("Confirm");
+        enterRRData = new Button("Confirm");
         GridPane.setConstraints(enterRRData, 0, 2);
         enterRRData.setDefaultButton(true);
         enterRRData.setDisable(true);
+        myButton.configureButton();
 
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
@@ -111,7 +117,7 @@ public class BloodPressureScreen {
 
 
         enterRRData.setOnAction(event -> {
-            Pair<Integer,Integer> rrPair = new Pair<>(Integer.parseInt(bloodPressureSystolic.getText()),Integer.parseInt(bloodPressureDiastolic.getText()));
+            Pair<Integer, Integer> rrPair = new Pair<>(Integer.parseInt(bloodPressureSystolic.getText()), Integer.parseInt(bloodPressureDiastolic.getText()));
             LocalDateTime measuredDateTime = LocalDateTime.now();
             String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
             mappedRRValues.put(formattedDateTime, rrPair);
@@ -136,6 +142,61 @@ public class BloodPressureScreen {
             newWindow.close();
         });
 
+
+        createRRScreen.getChildren().addAll(enterRRData, bloodPressureSystolic, bloodPressureDiastolic, backFromRRScreen);
+        newWindow.show();
+
+        /*
+         * Closing the Screen, the Data will be written to "Mapped_RR_Value_Sample.json"
+         */
+        newWindow.setOnCloseRequest(event -> writeRRDataToJSON());
+    }
+
+    /**
+     * This method writes the received data for RR-levels into a User specific JSON-File"
+     * <p>
+     * ***IMPORTANT NOTE: This might be replaced in further implementations with an SQL Database!***
+     */
+    private void writeRRDataToJSON() {
+        try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample_User: " + getUsername() + ".json")) {
+            gson.toJson(mappedRRValues, writer);
+
+        } catch (IOException exc) {
+            exc.printStackTrace();
+        }
+    }
+
+    /**
+     * This method reads the RR-Data from the User specific JSON-File
+     * <p>
+     * ***IMPORTANT NOTE: This might be replaced in further implementations with an SQL Database!***
+     * <p>
+     * If it doesnt exist ,the RRData will be stored (for temporary use) in a newly initialized TreeMap
+     */
+
+    private void readRRDataFromJSON() {
+        if (new File("Mapped_RR_Value_Sample_User: " + getUsername() + ".json").exists()) {
+            Type type = new TypeToken<TreeMap<String, Pair>>() {
+            }.getType();
+            try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample_User: " + getUsername() + ".json"))) {
+                mappedRRValues = gson.fromJson(br, type);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mappedRRValues = new TreeMap<>();
+        }
+    }
+
+    /**
+     * This method reference binds the "enable" property to the fact, whether the two textfields are filled in the correct manner.
+     */
+
+    private ButtonConfiguration myButton = this::bindEnterButton;
+
+    private void bindEnterButton() {
         BooleanBinding bb = new BooleanBinding() {
             {
                 super.bind(bloodPressureDiastolic.textProperty(),
@@ -151,55 +212,9 @@ public class BloodPressureScreen {
             }
         };
         enterRRData.disableProperty().bind(bb);
-
-        createRRScreen.getChildren().addAll(enterRRData, bloodPressureSystolic, bloodPressureDiastolic, backFromRRScreen);
-        newWindow.show();
-
-        /*
-         * Closing the Screen, the Data will be written to "Mapped_RR_Value_Sample.json"
-         */
-        newWindow.setOnCloseRequest(event -> writeRRDataToJSON());
     }
 
-    /**
-     * This method writes the received data for RR-levels into a User specific JSON-File"
-     *
-     * ***IMPORTANT NOTE: This might be replaced in further implementations with an SQL Database!***
-     */
-    private void writeRRDataToJSON() {
-        try (FileWriter writer = new FileWriter("Mapped_RR_Value_Sample_User: "+getUsername()+".json")) {
-            gson.toJson(mappedRRValues, writer);
-
-        } catch (IOException exc) {
-            exc.printStackTrace();
-        }
-    }
-
-    /**
-     * This method reads the RR-Data from the User specific JSON-File
-     *
-     * ***IMPORTANT NOTE: This might be replaced in further implementations with an SQL Database!***
-     *
-     * If it doesnt exist ,the RRData will be stored (for temporary use) in a newly initialized TreeMap
-     */
-
-    private void readRRDataFromJSON() {
-        if (new File("Mapped_RR_Value_Sample_User: "+getUsername()+".json").exists()) {
-            Type type = new TypeToken<TreeMap<String,Pair>>() {
-            }.getType();
-            try (BufferedReader br = new BufferedReader(new FileReader("Mapped_RR_Value_Sample_User: "+getUsername()+".json"))) {
-                mappedRRValues = gson.fromJson(br, type);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            mappedRRValues = new TreeMap<>();
-        }
-    }
-
-    public String getUsername() {
+    private String getUsername() {
         return username;
     }
 }
