@@ -23,6 +23,7 @@ public class RegisterScreen implements FailedLoginAlert {
     private Button okButton;
     private TextField nameInput2;
     private TextField passwordInput1;
+    private Stage newWindow;
 
     public void createRegistrationScreen(Stage primaryStage) {
         GridPane createLayoutScreen = new GridPane();
@@ -31,7 +32,7 @@ public class RegisterScreen implements FailedLoginAlert {
         createLayoutScreen.setHgap(10);
 
         Scene secScene = new Scene(createLayoutScreen, 400, 300);
-        Stage newWindow = new Stage();
+        newWindow = new Stage();
         newWindow.setTitle("Creating your user account");
         newWindow.setScene(secScene);
 
@@ -63,7 +64,6 @@ public class RegisterScreen implements FailedLoginAlert {
 
 
         okButton.setOnAction(e -> {storeUserInDatabase(nameInput2.getText().replaceAll(" ", ""),passwordInput1.getText());
-            newWindow.close();
         });
 
         createLayoutScreen.getChildren().addAll(choosesUserName, nameInput2, choosePassword, passwordInput1, okButton);
@@ -90,6 +90,7 @@ public class RegisterScreen implements FailedLoginAlert {
             insertInDB.setString(1,username);
             insertInDB.setString(2,password);
             insertInDB.executeUpdate();
+            newWindow.close();
         }
          catch (SQLIntegrityConstraintViolationException dublEntry){
              FailedLoginAlert.super.showFailedLoginAlert("This username already exists. Please choose another name.");
@@ -107,7 +108,7 @@ public class RegisterScreen implements FailedLoginAlert {
      */
     private Connection connect() {
         try {
-            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "--");
+            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "TbC9ir27!");
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
