@@ -54,8 +54,6 @@ public class RegisterScreen implements FailedLoginAlert {
         passwordInput1 = new TextField();
         GridPane.setConstraints(passwordInput1, 1, 1);
 
-        /*TODO: Enable Ok Button only when both fields not empty (REGEX for name)
-         */
 
         okButton = new Button("            OK          ");
         GridPane.setConstraints(okButton, 0, 2);
@@ -109,7 +107,7 @@ public class RegisterScreen implements FailedLoginAlert {
      */
     private Connection connect() {
         try {
-            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "TbC9ir27!");
+            return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "--");
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

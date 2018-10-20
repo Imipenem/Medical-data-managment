@@ -91,8 +91,10 @@ public class LoginScreen implements FailedLoginAlert {
 
     private void processLogin(Stage logScreen) {
         try (Connection myConn = connect();
-             PreparedStatement myStat =  myConn.prepareStatement("SELECT passwort FROM LoginData WHERE username = '"+nameInput.getText()+"'")) {
-             ResultSet myRs= myStat.executeQuery();
+             //PreparedStatement myStat =  myConn.prepareStatement("SELECT passwort FROM LoginData WHERE username = '"+nameInput.getText()+"'"))
+             PreparedStatement myStat =  myConn.prepareStatement("SELECT passwort FROM LoginData WHERE username = ?")){
+            myStat.setString(1,nameInput.getText());
+            ResultSet myRs= myStat.executeQuery();
 
              if(!myRs.next() || !myRs.getString("passwort").equals(passwordInput.getText())) {
                 FailedLoginAlert.super.showFailedLoginAlert("Username or Password incorrect: Please reenter");
@@ -114,7 +116,7 @@ public class LoginScreen implements FailedLoginAlert {
          */
         private Connection connect() {
             try {
-                return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "TbC9ir27!");
+                return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "--");
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
