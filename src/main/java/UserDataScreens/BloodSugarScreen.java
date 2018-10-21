@@ -13,14 +13,19 @@ import javafx.stage.Stage;
 
 public class BloodSugarScreen {
 
+    private ScreenCreator bsCreator = this::buildBSScreen;
+
+    public void showBloodSugarScreen(Stage owner) {
+            bsCreator.buildScreen(owner);
+        }
+
     /**
      * This method starts the screen, where the user could enter his Blood Sugar levels
      *
      * @param owner the "owner" stage of the new Window
      */
 
-    public static void showBloodSugarScreen(Stage owner) {
-
+    private void buildBSScreen(Stage owner){
         GridPane createBSScreen = new GridPane();
         createBSScreen.setPadding(new Insets(10));
         createBSScreen.setVgap(8);

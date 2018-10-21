@@ -13,12 +13,18 @@ import javafx.stage.Stage;
 
 public class HeartRateScreen {
 
+    private ScreenCreator bpmCreator = this::buildBPMScreen;
+    public void showHearthRateScreen(Stage owner) {
+            bpmCreator.buildScreen(owner);
+    }
+
     /**
      * This method starts the screen, where the user could enter his heart rate data
      *
      * @param owner the "owner" stage of the new Window
      */
-    public static void showHearthRateScreen(Stage owner) {
+
+    private void buildBPMScreen(Stage owner) {
         GridPane createBPMScreen = new GridPane();
         createBPMScreen.setPadding(new Insets(10));
         createBPMScreen.setVgap(8);

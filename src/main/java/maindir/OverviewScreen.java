@@ -68,15 +68,18 @@ public class OverviewScreen {
                     break;
 
                 case "Blood Sugar/HbA1c":
-                    BloodSugarScreen.showBloodSugarScreen(starterStage);
+                    BloodSugarScreen bsScreen = new BloodSugarScreen();
+                    bsScreen.showBloodSugarScreen(starterStage);
                     break;
 
                 case "BPM":
-                    HeartRateScreen.showHearthRateScreen(starterStage);
+                    HeartRateScreen bpmScreen = new HeartRateScreen();
+                    bpmScreen.showHearthRateScreen(starterStage);
                     break;
 
                 case "Others":
-                    OthersScreen.showOthersScreen(starterStage);
+                    OthersScreen otScreen = new OthersScreen();
+                    otScreen.showOthersScreen(starterStage);
                     break;
             }
         });

@@ -13,12 +13,17 @@ import javafx.stage.Stage;
 
 public class OthersScreen {
 
+    private ScreenCreator otherCreator = this::buildOtherScreen;
+    public void showOthersScreen(Stage owner) {
+        otherCreator.buildScreen(owner);
+    }
+
     /**
      * This method starts the screen, where the user could enter a User specific Dataset, if needed (like TSH,Kreatinin,...)
      *
      * @param owner the "owner" stage of the new Window
      */
-    public static void showOthersScreen(Stage owner) {
+    private void buildOtherScreen(Stage owner) {
         GridPane createOthersScreen = new GridPane();
         createOthersScreen.setPadding(new Insets(10));
         createOthersScreen.setVgap(8);
