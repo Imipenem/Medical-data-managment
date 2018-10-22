@@ -14,6 +14,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -44,6 +45,8 @@ public class BloodPressureScreen {
     private Stage rrPlotWindow;
     private XYChart.Series SysSeries;
     private XYChart.Series DiaSeries;
+    private LineChart<String, Number> lineChart;
+
 
     public BloodPressureScreen(String username) {
         this.username = username;
@@ -51,6 +54,7 @@ public class BloodPressureScreen {
 
 
     private ScreenCreator rrCreator = this::buildRRScreen;
+
     public void showBloodPressureScreen(Stage owner) {
         rrCreator.buildScreen(owner);
     }
@@ -63,7 +67,7 @@ public class BloodPressureScreen {
      *
      * @param owner the "owner" stage of the new Window
      */
-    private void buildRRScreen(Stage owner){
+    private void buildRRScreen(Stage owner) {
         GridPane createRRScreen = new GridPane();
         createRRScreen.setPadding(new Insets(10));
         createRRScreen.setVgap(8);
@@ -99,8 +103,6 @@ public class BloodPressureScreen {
         myButton.configureButton();
 
 
-
-
         enterRRData.setOnAction(event -> plotRRData());
 
         Button backFromRRScreen = new Button("Click to go back");
@@ -126,17 +128,16 @@ public class BloodPressureScreen {
     }
 
 
-
     /**
      * This method is called for creating a LineChart with two series (the diastolic and systolic)
      */
-    private void createRRPlots(){
+    private void createRRPlots() {
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Date");
 
         //creating the chart
-         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+        lineChart = new LineChart<>(xAxis, yAxis);
 
         lineChart.setTitle("Blood Pressure trend");
 
@@ -169,10 +170,21 @@ public class BloodPressureScreen {
         String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
         mappedRRValues.put(formattedDateTime, rrPair);
 
-        //populating the series with data received from the "Mapped_RR_Value_Sample.json" - File
+        /* populating the series with data received from the "Mapped_RR_Value_Sample.json" - File and
+         * install a tooltip for each data point
+         */
         for (Map.Entry<String, Pair> entry : mappedRRValues.entrySet()) {
-            SysSeries.getData().add(new XYChart.Data<String, Object>(entry.getKey(), entry.getValue().getFirstValue()));
-            DiaSeries.getData().add(new XYChart.Data<String, Object>(entry.getKey(), entry.getValue().getSecValue()));
+            XYChart.Data<String,Object> currentData = new XYChart.Data<>(entry.getKey(), entry.getValue().getFirstValue());
+            SysSeries.getData().add(currentData);
+            Tooltip.install(currentData.getNode(), new Tooltip(
+                    currentData.getXValue() + "\n" +
+                            "Systolic Value : " + currentData.getYValue()));
+
+            currentData = new XYChart.Data<>(entry.getKey(), entry.getValue().getSecValue());
+            DiaSeries.getData().add(currentData);
+            Tooltip.install(currentData.getNode(), new Tooltip(
+                    currentData.getXValue() + "\n" +
+                            "Diastolic Value : " + currentData.getYValue()));
         }
         rrPlotWindow.show();
     }
