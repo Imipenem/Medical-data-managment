@@ -68,7 +68,7 @@ public class OverviewScreen {
                     break;
 
                 case "Blood Sugar/HbA1c":
-                    BloodSugarScreen bsScreen = new BloodSugarScreen();
+                    BloodSugarScreen bsScreen = new BloodSugarScreen(getUsername());
                     bsScreen.showBloodSugarScreen(starterStage);
                     break;
 

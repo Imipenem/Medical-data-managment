@@ -33,7 +33,7 @@ import java.util.TreeMap;
  * Data will be loaded while opening the stage and be saved while closing it to provide this data for the chart for graphical representation.
  */
 
-public class BloodPressureScreen {
+public class BloodPressureScreen implements ChartCreator {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private Map<String, Pair> mappedRRValues;
@@ -103,7 +103,7 @@ public class BloodPressureScreen {
         myButton.configureButton();
 
 
-        enterRRData.setOnAction(event -> plotRRData());
+        enterRRData.setOnAction(event -> plotData());
 
         Button backFromRRScreen = new Button("Click to go back");
         GridPane.setConstraints(backFromRRScreen, 1, 2);
@@ -131,7 +131,8 @@ public class BloodPressureScreen {
     /**
      * This method is called for creating a LineChart with two series (the diastolic and systolic)
      */
-    private void createRRPlots() {
+    @Override
+    public void createChart() {
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Date");
@@ -163,8 +164,9 @@ public class BloodPressureScreen {
     /**
      * This method reads and plots the RR-Data onto the LineChart
      */
-    private void plotRRData() {
-        createRRPlots();
+    @Override
+    public void plotData() {
+        createChart();
         Pair<Integer, Integer> rrPair = new Pair<>(Integer.parseInt(bloodPressureSystolic.getText()), Integer.parseInt(bloodPressureDiastolic.getText()));
         LocalDateTime measuredDateTime = LocalDateTime.now();
         String formattedDateTime = measuredDateTime.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
