@@ -1,6 +1,8 @@
 package maindir;
-
-import UserManagement.LoginScreen;
+import UserManagement.loginModel.LoginModelImpl;
+import UserManagement.loginPresenter.LoginPresenter;
+import UserManagement.loginPresenter.LoginPresenterImpl;
+import UserManagement.loginView.LoginViewImpl;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -12,10 +14,12 @@ public class Main extends Application {
      * @param primaryStage the stage for showing the LoginScreen
      */
 
+    private LoginPresenter presenter = new LoginPresenterImpl();
+
     @Override
     public void start(Stage primaryStage) {
-        LoginScreen logScreen = new LoginScreen();
-        logScreen.createLoginScreen(primaryStage);
+        presenter.setLoginView(new LoginViewImpl(primaryStage));
+        presenter.initPresenter(new LoginModelImpl());
     }
 
     public static void main(String[] args) {

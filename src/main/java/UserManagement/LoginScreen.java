@@ -108,18 +108,19 @@ public class LoginScreen implements FailedLoginAlert {
         }
     }
 
-        /*±
+        /**
          * Get a connection to a database
          *
          * @return (if available) the connection to the specified Database
          */
         private Connection connect() {
             try {
-                return DriverManager.getConnection("jdbc:mysql://localhost:3306/DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki", "root", "TbC9ir27!");
+                return DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useSSL=false", "root", "dumboistgerneeis");
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
             }
+            //DB?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=Europe/Helsinki
         }
 
     /**

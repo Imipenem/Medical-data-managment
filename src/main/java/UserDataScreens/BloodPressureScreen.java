@@ -159,6 +159,7 @@ public class BloodPressureScreen implements ChartCreator {
         rrPlotWindow.setX(newWindow.getX() + 200);
         rrPlotWindow.setY(newWindow.getY() + 100);
         rrPlotWindow.setScene(rrPlotScene);
+        rrPlotWindow.setOnCloseRequest(e -> writeRRDataToJSON());
     }
 
     /**
