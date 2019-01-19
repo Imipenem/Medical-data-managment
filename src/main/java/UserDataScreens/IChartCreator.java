@@ -1,6 +1,6 @@
 package UserDataScreens;
 
-public interface ChartCreator {
+public interface IChartCreator {
     void createChart();
     void plotData();
 }

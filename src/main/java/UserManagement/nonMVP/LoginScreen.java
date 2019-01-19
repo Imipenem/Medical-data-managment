@@ -1,6 +1,8 @@
-package UserManagement;
+package UserManagement.nonMVP;
 
 import Helper.ButtonConfiguration;
+import UserManagement.loginScreenMVP.IFailedLoginAlert;
+import UserManagement.registerScreenMVP.RegisterScreen;
 import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -9,7 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import maindir.OverviewScreen;
+import UserManagement.overviewScreenMVP.OverviewScreen;
 import java.sql.*;
 
 /**
@@ -20,7 +22,7 @@ import java.sql.*;
  * WILL IMPROVE THIS WITH FURTHER COMMITS
  */
 
-public class LoginScreen implements FailedLoginAlert {
+public class LoginScreen implements IFailedLoginAlert {
     private TextField passwordInput;
     private TextField nameInput;
     private Button logInButton;
@@ -96,7 +98,7 @@ public class LoginScreen implements FailedLoginAlert {
             ResultSet myRs= myStat.executeQuery();
 
              if(!myRs.next() || !myRs.getString("passwort").equals(passwordInput.getText())) {
-                FailedLoginAlert.super.showFailedLoginAlert("Username or Password incorrect: Please reenter");
+                IFailedLoginAlert.super.showFailedLoginAlert("Username or Password incorrect: Please reenter");
             }
             else {
                     logScreen.close();

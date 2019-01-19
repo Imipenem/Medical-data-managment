@@ -1,4 +1,4 @@
-package maindir;
+package Helper;
 
 public class User {
     private String password;

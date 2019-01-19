@@ -1,4 +1,4 @@
-package UserManagement.loginView;
+package UserManagement.loginScreenMVP.loginView;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -10,7 +10,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
-public class LoginViewImpl implements LoginView {
+public class LoginViewImpl implements ILoginView {
 
     private TextField passwordInput;
     private TextField nameInput;

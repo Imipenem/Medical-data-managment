@@ -1,7 +1,8 @@
-package UserDataScreens;
+package UserDataScreens.bloodSugarScreenMVP;
 
 import Helper.ButtonConfiguration;
-import Helper.Pair;
+import UserDataScreens.IChartCreator;
+import UserDataScreens.ScreenCreator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -30,7 +31,7 @@ import java.util.TreeMap;
  * This class represents the functionality provided for a user to enter and process his blood sugar levels
  */
 
-public class BloodSugarScreen implements ChartCreator {
+public class BloodSugarScreen implements IChartCreator {
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private String username;

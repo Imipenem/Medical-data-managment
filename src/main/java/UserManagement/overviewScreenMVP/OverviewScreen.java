@@ -1,9 +1,9 @@
-package maindir;
+package UserManagement.overviewScreenMVP;
 
-import UserDataScreens.BloodPressureScreen;
-import UserDataScreens.BloodSugarScreen;
-import UserDataScreens.HeartRateScreen;
-import UserDataScreens.OthersScreen;
+import UserDataScreens.bloodPressureScreenMVP.BloodPressureScreen;
+import UserDataScreens.bloodSugarScreenMVP.BloodSugarScreen;
+import UserDataScreens.heartRateScreenMVP.HeartRateScreen;
+import UserDataScreens.othersScreenMVP.OthersScreen;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.*;

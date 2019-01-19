@@ -1,6 +1,6 @@
-package UserManagement.loginModel;
+package UserManagement.loginScreenMVP.loginModel;
 
-public class LoginModelImpl implements LoginModel {
+public class LoginModelImpl implements ILoginModel {
 
     private String username;
     private String password;

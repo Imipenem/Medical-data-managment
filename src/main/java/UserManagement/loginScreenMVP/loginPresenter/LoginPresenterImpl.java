@@ -1,22 +1,22 @@
-package UserManagement.loginPresenter;
+package UserManagement.loginScreenMVP.loginPresenter;
 
 import Helper.ButtonConfiguration;
-import UserManagement.FailedLoginAlert;
-import UserManagement.loginModel.LoginModel;
-import UserManagement.loginView.LoginView;
+import UserManagement.loginScreenMVP.IFailedLoginAlert;
+import UserManagement.loginScreenMVP.loginModel.ILoginModel;
+import UserManagement.loginScreenMVP.loginView.ILoginView;
 import javafx.beans.binding.BooleanBinding;
 import javafx.stage.Stage;
-import maindir.OverviewScreen;
+import UserManagement.overviewScreenMVP.OverviewScreen;
 
 import java.sql.*;
 
-public class LoginPresenterImpl implements LoginPresenter,FailedLoginAlert {
+public class LoginPresenterImpl implements ILoginPresenter, IFailedLoginAlert {
 
-    private LoginView loginView;
-    private LoginModel loginModel;
+    private ILoginView loginView;
+    private ILoginModel loginModel;
 
     @Override
-    public void initPresenter(LoginModel model){
+    public void initPresenter(ILoginModel model){
         setLoginModel(model);
         setListenerForLoginButton();
         myButtConfiq.configureButton();
@@ -47,7 +47,7 @@ public class LoginPresenterImpl implements LoginPresenter,FailedLoginAlert {
             ResultSet myRs= myStat.executeQuery();
 
             if(!myRs.next() || !myRs.getString("passwort").equals(getLoginModel().getPassword())) {
-                FailedLoginAlert.super.showFailedLoginAlert("Username or Password incorrect: Please reenter");
+                IFailedLoginAlert.super.showFailedLoginAlert("Username or Password incorrect: Please reenter");
             }
             else {
                 stage.close();
@@ -96,22 +96,22 @@ public class LoginPresenterImpl implements LoginPresenter,FailedLoginAlert {
     }
 
     @Override
-    public void setLoginModel(LoginModel loginModel) {
+    public void setLoginModel(ILoginModel loginModel) {
         this.loginModel = loginModel;
     }
 
     @Override
-    public LoginModel getLoginModel() {
+    public ILoginModel getLoginModel() {
         return loginModel;
     }
 
     @Override
-    public void setLoginView(LoginView loginView) {
+    public void setLoginView(ILoginView loginView) {
         this.loginView = loginView;
     }
 
     @Override
-    public LoginView getLoginView() {
+    public ILoginView getLoginView() {
         return loginView;
     }
 }

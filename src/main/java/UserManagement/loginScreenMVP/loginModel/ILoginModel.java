@@ -1,6 +1,6 @@
-package UserManagement.loginModel;
+package UserManagement.loginScreenMVP.loginModel;
 
-public interface LoginModel {
+public interface ILoginModel {
 
     void setUsername(String username);
     void setPassword(String password);

@@ -1,6 +1,7 @@
-package UserManagement;
+package UserManagement.registerScreenMVP;
 
 import Helper.ButtonConfiguration;
+import UserManagement.loginScreenMVP.IFailedLoginAlert;
 import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -18,7 +19,7 @@ import java.sql.*;
  * Spaces will be removed to prevent false input.
  */
 
-public class RegisterScreen implements FailedLoginAlert {
+public class RegisterScreen implements IFailedLoginAlert {
 
     private Button okButton;
     private TextField nameInput2;
@@ -93,7 +94,7 @@ public class RegisterScreen implements FailedLoginAlert {
             newWindow.close();
         }
          catch (SQLIntegrityConstraintViolationException dublEntry){
-             FailedLoginAlert.super.showFailedLoginAlert("This username already exists. Please choose another name.");
+             IFailedLoginAlert.super.showFailedLoginAlert("This username already exists. Please choose another name.");
         }
          catch (Exception e) {
             e.printStackTrace();
